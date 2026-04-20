@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학원 시간표</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      color: #1a202c;
+    }
+
+    /* ══════════════ LOGIN SCREEN ══════════════ */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%);
+      overflow-y: auto;
+      z-index: 999;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 20px 40px;
+    }
+
+    #login-screen.hidden { display: none; }
+
+    .login-container {
+      display: flex;
+      gap: 22px;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 780px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* shared card style */
+    .login-card {
+      background: white;
+      border-radius: 20px;
+      padding: 36px 32px;
+      width: 340px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+      flex-shrink: 0;
+    }
+
+    .card-logo { font-size: 2.2rem; text-align: center; margin-bottom: 6px; }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #1e3a5f;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .card-sub {
+      font-size: 0.76rem;
+      color: #718096;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1.5px solid #e2e8f0;
+      margin: 18px 0;
+    }
+
+    .login-field { margin-bottom: 13px; }
+
+    .login-field label {
+      display: block;
+      font-size: 0.77rem;
+      font-weight: 700;
+      color: #4a5568;
+      margin-bottom: 5px;
+    }
+
+    .login-field select,
+    .login-field input {
+      width: 100%;
+      padding: 10px 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+      color: #2d3748;
+      background: #f7fafc;
+    }
+
+    .login-field select:focus,
+    .login-field input:focus { border-color: #3b82f6; background: white; }
+
+    .login-error {
+      color: #e53e3e;
+      font-size: 0.76rem;
+      min-height: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .btn-primary-full {
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, #1e3a5f, #2d6a9f);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-primary-full:hover { opacity: 0.9; }
+    .btn-primary-full:active { transform: scale(0.98); }
+
+    /* ── Student lookup card ── */
+    .student-search-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .student-search-row input {
+      flex: 1;
+      padding: 10px 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+      color: #2d3748;
+      background: #f7fafc;
+    }
+
+    .student-search-row input:focus { border-color: #f97316; background: white; }
+
+    .btn-search {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #c05621, #f97316);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .btn-search:hover { opacity: 0.88; }
+
+    /* Subject legend chips */
+    .subject-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Schedule result */
+    #schedule-result {
+      margin-top: 16px;
+    }
+
+    .result-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #1e3a5f;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .result-name span {
+      color: #f97316;
+    }
+
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 0.8rem;
+    }
+
+    .schedule-table thead th {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 7px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .schedule-table tbody tr {
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .schedule-table tbody tr:last-child { border-bottom: none; }
+
+    .schedule-table td {
+      padding: 7px 10px;
+      vertical-align: middle;
+    }
+
+    .schedule-table td:first-child {
+      font-weight: 700;
+      color: #4a5568;
+      white-space: nowrap;
+    }
+
+    .schedule-table td:nth-child(2) {
+      color: #4a5568;
+      font-size: 0.76rem;
+      white-space: nowrap;
+    }
+
+    .subject-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .no-result {
+      text-align: center;
+      color: #a0aec0;
+      font-size: 0.82rem;
+      padding: 16px 0 4px;
+    }
+
+    .result-summary {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #718096;
+      margin-top: 10px;
+    }
+
+    /* ══════════════ MAIN APP ══════════════ */
+    #app { display: none; padding: 20px; }
+    #app.visible { display: block; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      border-radius: 14px;
+      padding: 14px 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+
+    .topbar-left h1 { font-size: 1.15rem; font-weight: 800; color: #1e3a5f; }
+    .topbar-left .topbar-sub { font-size: 0.75rem; color: #718096; margin-top: 2px; }
+
+    .teacher-badge { display: flex; align-items: center; gap: 10px; }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .btn-logout {
+      padding: 7px 16px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #4a5568;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-logout:hover { background: #fee2e2; border-color: #fc8181; color: #c53030; }
+
+    .btn-reset-all {
+      padding: 7px 16px;
+      border: 2px solid #fc8181;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #c53030;
+      transition: background 0.2s;
+    }
+    .btn-reset-all:hover { background: #fee2e2; }
+
+    .stats { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 10px 18px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      flex: 1;
+      min-width: 90px;
+    }
+
+    .stat-num { font-size: 1.5rem; font-weight: 800; }
+    .stat-label { font-size: 0.68rem; color: #718096; margin-top: 2px; }
+
+    .table-wrapper { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      min-width: 680px;
+    }
+
+    thead th { padding: 13px 8px; font-size: 0.82rem; font-weight: 700; text-align: center; }
+    thead th:first-child { background: #2d3748; color: #e2e8f0; width: 108px; }
+    thead th.weekday { background: #1e3a5f; color: white; }
+    thead th.weekend { background: #c05621; color: white; }
+
+    tbody tr { border-top: 1px solid #e2e8f0; }
+
+    td.time-label {
+      padding: 0 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #4a5568;
+      background: #f7fafc;
+      text-align: center;
+      white-space: nowrap;
+      border-right: 2px solid #e2e8f0;
+      line-height: 1.6;
+    }
+
+    td.slot {
+      padding: 5px;
+      vertical-align: top;
+      min-height: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    td.slot.weekday-slot { background: #fafbff; }
+    td.slot.weekend-slot { background: #fffaf7; }
+    td.slot.no-op { background: #f0f4f8; }
+
+    .slot-add-btn {
+      width: 100%;
+      height: 100%;
+      border: 2px dashed #cbd5e0;
+      background: transparent;
+      border-radius: 8px;
+      color: #a0aec0;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .slot-add-btn:hover {
+      border-color: var(--subject-color, #3b82f6);
+      color: var(--subject-color, #3b82f6);
+      background: rgba(59,130,246,0.06);
+    }
+
+    .class-card {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 8px;
+      padding: 6px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      border: 2px solid transparent;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .class-card:hover { transform: scale(1.02); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+
+    .card-header { display: flex; align-items: center; justify-content: space-between; }
+    .card-subject { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; }
+
+    .card-count {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: rgba(0,0,0,0.12);
+      border-radius: 999px;
+      padding: 1px 7px;
+      white-space: nowrap;
+    }
+
+    .card-students {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px 4px;
+      margin-top: 4px;
+      opacity: 0.85;
+    }
+    .card-students span {
+      font-size: 0.66rem;
+      line-height: 1.5;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .card-more { font-size: 0.62rem; opacity: 0.6; margin-top: 2px; }
+
+    /* ══════════════ MODAL ══════════════ */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.active { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 18px;
+      padding: 28px;
+      width: 380px;
+      max-width: 95vw;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+      animation: slideUp 0.2s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(16px); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .modal-header h2 { font-size: 1rem; font-weight: 800; color: #1e3a5f; line-height: 1.4; }
+    .modal-header .modal-meta { font-size: 0.73rem; color: #718096; margin-top: 2px; }
+
+    .modal-close {
+      background: #f0f4f8;
+      border: none;
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #4a5568;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .modal-close:hover { background: #e2e8f0; }
+
+    .student-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; min-height: 20px; }
+
+    .student-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+
+    .student-row .student-num { font-size: 0.72rem; font-weight: 700; color: #a0aec0; width: 18px; text-align: center; flex-shrink: 0; }
+    .student-row .student-name { flex: 1; font-size: 0.88rem; font-weight: 600; color: #2d3748; }
+
+    .student-row .btn-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #fc8181;
+      font-size: 1rem;
+      padding: 0 2px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .student-row .btn-remove:hover { color: #e53e3e; }
+
+    .empty-list-msg { text-align: center; color: #a0aec0; font-size: 0.82rem; padding: 12px 0; }
+
+    .add-student-row { display: flex; gap: 8px; margin-bottom: 16px; }
+
+    .add-student-row input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+      color: #2d3748;
+    }
+
+    .add-student-row input:focus { border-color: #3b82f6; }
+    .add-student-row input:disabled { background: #f0f4f8; color: #a0aec0; cursor: not-allowed; }
+
+    .btn-add-student {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      transition: opacity 0.2s;
+    }
+
+    .btn-add-student:hover { opacity: 0.85; }
+    .btn-add-student:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .capacity-bar-wrap { margin-bottom: 16px; }
+
+    .capacity-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.73rem;
+      color: #4a5568;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .capacity-bar { height: 7px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .capacity-fill { height: 100%; border-radius: 999px; transition: width 0.3s ease; }
+
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; }
+
+    .btn { padding: 9px 18px; border-radius: 8px; font-size: 0.83rem; font-weight: 700; cursor: pointer; border: none; transition: opacity 0.2s, transform 0.1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-secondary { background: #e2e8f0; color: #4a5568; }
+    .btn-secondary:hover { background: #cbd5e0; }
+    .btn-danger { background: #fee2e2; color: #c53030; }
+    .btn-danger:hover { background: #fecaca; }
+
+    /* 시간 충돌 경고 박스 */
+    #conflict-msg {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #fff5f5;
+      border: 1.5px solid #fc8181;
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-size: 0.8rem;
+      color: #2d3748;
+      line-height: 1.55;
+      margin-bottom: 12px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .conflict-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    .bottom-bar { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 16px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.76rem; color: #4a5568; }
+    .legend-dot { width: 11px; height: 11px; border-radius: 3px; }
+
+    /* row highlight colors for schedule table */
+    .row-국어 { background: #eff6ff; }
+    .row-영어 { background: #f0fdf4; }
+    .row-수학 { background: #faf5ff; }
+    .row-과학 { background: #f0fdfa; }
+    .row-역사 { background: #fff7ed; }
+
+    /* ══════════════ PRINT BUTTON ══════════════ */
+    .btn-print {
+      padding: 7px 16px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #4a5568;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-print:hover { background: #ebf8ff; border-color: #63b3ed; color: #2b6cb0; }
+
+    /* ══════════════ PRINT PREVIEW MODAL ══════════════ */
+    #print-preview-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 600;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-y: auto;
+    }
+    #print-preview-backdrop.active { display: flex; }
+
+    #print-preview-box {
+      background: white;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 980px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.32);
+      overflow: hidden;
+      animation: slideUp 0.2s ease;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: #1e3a5f;
+      color: white;
+    }
+    .preview-toolbar-title { font-size: 1rem; font-weight: 800; }
+    .preview-toolbar-sub { font-size: 0.73rem; opacity: 0.75; margin-top: 2px; }
+    .preview-toolbar-btns { display: flex; gap: 10px; }
+
+    .btn-do-print {
+      padding: 8px 20px;
+      background: #f97316;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-do-print:hover { opacity: 0.88; }
+
+    .btn-close-preview {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-close-preview:hover { background: rgba(255,255,255,0.28); }
+
+    /* preview sheet */
+    #preview-sheet {
+      padding: 28px 24px 32px;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      border-bottom: 2.5px solid #1e3a5f;
+      padding-bottom: 10px;
+    }
+    .preview-header-left h2 { font-size: 1.25rem; font-weight: 900; color: #1e3a5f; }
+    .preview-header-left .ph-sub { font-size: 0.8rem; color: #4a5568; margin-top: 3px; }
+    .preview-header-right { font-size: 0.75rem; color: #718096; text-align: right; }
+
+    /* preview summary chips */
+    .preview-summary {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .preview-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #f0f4f8;
+      color: #2d3748;
+    }
+    .preview-chip-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+    /* preview timetable */
+    #preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      border: 1.5px solid #cbd5e0;
+    }
+    #preview-table th {
+      background: #2d3748;
+      color: white;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid #4a5568;
+    }
+    #preview-table th.ph-weekday { background: #1e3a5f; }
+    #preview-table th.ph-weekend { background: #c05621; }
+    #preview-table th.ph-time    { background: #2d3748; width: 110px; }
+
+    #preview-table td {
+      border: 1px solid #e2e8f0;
+      padding: 7px 8px;
+      vertical-align: top;
+      min-height: 60px;
+    }
+    #preview-table td.pt-time {
+      background: #f7fafc;
+      font-weight: 700;
+      color: #4a5568;
+      text-align: center;
+      white-space: nowrap;
+      font-size: 0.72rem;
+    }
+    #preview-table td.pt-empty { background: #f0f4f8; }
+    #preview-table td.pt-no-op { background: #edf2f7; }
+
+    .pt-student-list {
+      list-style: none;
+      margin: 0; padding: 0;
+    }
+    .pt-student-list li {
+      padding: 2px 0;
+      font-size: 0.73rem;
+      color: #2d3748;
+      border-bottom: 1px dotted #e2e8f0;
+    }
+    .pt-student-list li:last-child { border-bottom: none; }
+    .pt-slot-count {
+      font-size: 0.65rem;
+      color: #a0aec0;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    /* ══════════════ STUDENT TIMETABLE OVERLAY ══════════════ */
+    #student-schedule-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 16px 32px;
+      overflow-y: auto;
+    }
+    #student-schedule-backdrop.active { display: flex; }
+
+    #student-schedule-box {
+      background: white;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 1080px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      overflow: hidden;
+      animation: slideUp 0.22s ease;
+    }
+
+    .stu-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #c05621, #f97316);
+      color: white;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .stu-toolbar-title { font-size: 1.05rem; font-weight: 900; }
+    .stu-toolbar-sub   { font-size: 0.74rem; opacity: 0.85; margin-top: 2px; }
+    .stu-toolbar-btns  { display: flex; gap: 10px; }
+
+    .btn-stu-print {
+      padding: 8px 20px;
+      background: white;
+      color: #c05621;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-stu-print:hover { opacity: 0.88; }
+
+    .btn-close-stu {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-close-stu:hover { background: rgba(255,255,255,0.3); }
+
+    #student-sheet {
+      padding: 24px 22px 30px;
+    }
+
+    .stu-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      border-bottom: 2.5px solid #c05621;
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .stu-header-name {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #c05621;
+    }
+    .stu-header-sub {
+      font-size: 0.8rem;
+      color: #4a5568;
+      margin-top: 3px;
+    }
+    .stu-header-right {
+      font-size: 0.74rem;
+      color: #718096;
+      text-align: right;
+    }
+
+    .stu-summary {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .stu-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #f0f4f8;
+      color: #2d3748;
+    }
+    .stu-chip-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Student week grid */
+    .stu-table-wrap { overflow-x: auto; }
+
+    #stu-grid {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    #stu-grid thead th {
+      padding: 11px 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    #stu-grid thead th:first-child { background: #2d3748; color: #e2e8f0; width: 108px; }
+    #stu-grid thead th.sg-weekday  { background: #1e3a5f; color: white; }
+    #stu-grid thead th.sg-weekend  { background: #c05621; color: white; }
+
+    #stu-grid tbody tr { border-top: 1px solid #e2e8f0; }
+
+    #stu-grid td.sg-time {
+      padding: 0 10px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      color: #4a5568;
+      background: #f7fafc;
+      text-align: center;
+      white-space: nowrap;
+      border-right: 2px solid #e2e8f0;
+      line-height: 1.6;
+    }
+    #stu-grid td.sg-slot {
+      padding: 5px;
+      height: 82px;
+      vertical-align: top;
+    }
+    #stu-grid td.sg-slot.sg-weekday { background: #fafbff; }
+    #stu-grid td.sg-slot.sg-weekend { background: #fffaf7; }
+    #stu-grid td.sg-noop { background: #f0f4f8; }
+
+    .stu-class-card {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid transparent;
+      gap: 4px;
+    }
+    .stu-class-subject {
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+    }
+    .stu-class-time {
+      font-size: 0.62rem;
+      font-weight: 600;
+      opacity: 0.75;
+    }
+
+    /* ══════════════ @MEDIA PRINT ══════════════ */
+    @media print {
+      body > *:not(#printable-area) { display: none !important; }
+      #printable-area {
+        display: block !important;
+        position: static !important;
+        width: 100%;
+      }
+      #printable-area * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
+<div id="login-screen">
+  <div class="login-container">
+
+    <!-- 강사 로그인 -->
+    <div class="login-card">
+      <div class="card-logo">🏫</div>
+      <div class="card-title">강사 로그인</div>
+      <p class="card-sub">과목 담당 강사 전용</p>
+
+      <div class="login-field">
+        <label>과목 (아이디)</label>
+        <select id="login-subject">
+          <option value="">과목을 선택하세요</option>
+          <option value="국어">국어</option>
+          <option value="영어">영어</option>
+          <option value="수학">수학</option>
+          <option value="과학">과학</option>
+          <option value="역사">역사</option>
+        </select>
+      </div>
+
+      <div class="login-field">
+        <label>비밀번호</label>
+        <input type="password" id="login-pw" placeholder="비밀번호 입력" maxlength="10">
+      </div>
+
+      <div class="login-error" id="login-error"></div>
+      <button class="btn-primary-full" id="btn-login">로그인</button>
+    </div>
+
+    <!-- 학생 스케줄 조회 -->
+    <div class="login-card">
+      <div class="card-logo">🎒</div>
+      <div class="card-title">내 수업 조회</div>
+      <p class="card-sub">학생 이름으로 수업 일정을 확인하세요</p>
+
+      <!-- 과목 색상 범례 -->
+      <div class="subject-legend" id="subject-legend">
+        <div class="legend-chip" style="background:#3b82f6">국어</div>
+        <div class="legend-chip" style="background:#22c55e">영어</div>
+        <div class="legend-chip" style="background:#a855f7">수학</div>
+        <div class="legend-chip" style="background:#14b8a6">과학</div>
+        <div class="legend-chip" style="background:#f97316">역사</div>
+      </div>
+
+      <div class="student-search-row">
+        <input type="text" id="input-student-search" placeholder="학생 이름 입력" maxlength="10">
+        <button class="btn-search" id="btn-student-search">조회</button>
+      </div>
+
+      <div id="schedule-result"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ MAIN APP ══════════════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>📚 학원 주간 시간표</h1>
+      <div class="topbar-sub">슬롯을 클릭하면 학생을 추가할 수 있습니다 &nbsp;|&nbsp; 최대 10명/슬롯</div>
+    </div>
+    <div class="teacher-badge">
+      <div class="badge-pill" id="teacher-badge">
+        <span id="badge-subject"></span> 선생님
+      </div>
+      <button class="btn-print" id="btn-print">🖨️ 인쇄 미리보기</button>
+      <button class="btn-reset-all" id="btn-reset-all">🗑️ 전체 초기화</button>
+      <button class="btn-logout" id="btn-logout">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-slots">0</div>
+      <div class="stat-label">수업 슬롯 수</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-students">0</div>
+      <div class="stat-label">등록 학생 수</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">35</div>
+      <div class="stat-label">총 가능 슬롯</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-capacity">0%</div>
+      <div class="stat-label">슬롯 활용률</div>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table id="timetable">
+      <thead><tr id="header-row"></tr></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <div class="bottom-bar" id="legend-bar"></div>
+</div>
+
+<!-- ══════════════════ PRINT PREVIEW ══════════════════ -->
+<div id="print-preview-backdrop">
+  <div id="print-preview-box">
+    <div class="preview-toolbar">
+      <div>
+        <div class="preview-toolbar-title">🖨️ 인쇄 미리보기</div>
+        <div class="preview-toolbar-sub">출력 전 내용을 확인하세요</div>
+      </div>
+      <div class="preview-toolbar-btns">
+        <button class="btn-close-preview" id="btn-close-preview">✕ 닫기</button>
+        <button class="btn-do-print" id="btn-do-print">출력하기</button>
+      </div>
+    </div>
+    <div id="preview-sheet">
+      <div class="preview-header">
+        <div class="preview-header-left">
+          <h2 id="preview-title">학원 주간 시간표</h2>
+          <div class="ph-sub" id="preview-sub"></div>
+        </div>
+        <div class="preview-header-right" id="preview-date"></div>
+      </div>
+      <div class="preview-summary" id="preview-summary"></div>
+      <table id="preview-table">
+        <thead><tr id="preview-header-row"></tr></thead>
+        <tbody id="preview-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 실제 인쇄용 숨김 영역 -->
+<div id="printable-area" style="display:none"></div>
+
+<!-- ══════════════════ STUDENT TIMETABLE OVERLAY ══════════════════ -->
+<div id="student-schedule-backdrop">
+  <div id="student-schedule-box">
+    <div class="stu-toolbar">
+      <div>
+        <div class="stu-toolbar-title">🎒 나의 주간 시간표</div>
+        <div class="stu-toolbar-sub" id="stu-toolbar-sub"></div>
+      </div>
+      <div class="stu-toolbar-btns">
+        <button class="btn-close-stu" id="btn-close-stu">✕ 닫기</button>
+        <button class="btn-stu-print" id="btn-stu-print">🖨️ 출력하기</button>
+      </div>
+    </div>
+    <div id="student-sheet">
+      <div class="stu-header">
+        <div>
+          <div class="stu-header-name" id="stu-name-title"></div>
+          <div class="stu-header-sub">나의 수업 일정표</div>
+        </div>
+        <div class="stu-header-right" id="stu-date"></div>
+      </div>
+      <div class="stu-summary" id="stu-summary"></div>
+      <div class="stu-table-wrap">
+        <table id="stu-grid">
+          <thead><tr id="stu-grid-header"></tr></thead>
+          <tbody id="stu-grid-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ STUDENT MODAL ══════════════════ -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-title">학생 관리</h2>
+        <div class="modal-meta" id="modal-meta"></div>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+
+    <div class="capacity-bar-wrap">
+      <div class="capacity-label">
+        <span>수강 인원</span>
+        <span id="cap-text">0 / 10명</span>
+      </div>
+      <div class="capacity-bar">
+        <div class="capacity-fill" id="cap-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="student-list" id="student-list"></div>
+
+    <!-- 시간 충돌 경고 -->
+    <div id="conflict-msg" style="display:none"></div>
+
+    <div class="add-student-row">
+      <input type="text" id="input-student-name" placeholder="이름 입력 (쉼표로 여러명: 홍길동,김철수)" maxlength="200">
+      <button class="btn-add-student" id="btn-add-student">추가</button>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="btn-clear-slot">수강 취소 (전체삭제)</button>
+      <button class="btn btn-secondary" id="modal-close-btn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ── Firebase ───────────────────────────────────────────────
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDzC6iwq1kDaJMR92hqeRpXdOBc-b4s79g",
+    authDomain: "hakwon-timetable.firebaseapp.com",
+    projectId: "hakwon-timetable",
+    storageBucket: "hakwon-timetable.firebasestorage.app",
+    messagingSenderId: "33627601481",
+    appId: "1:33627601481:web:afc6794482a1a62665dd98"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  async function saveToFirestore() {
+    try {
+      await setDoc(doc(db, 'schedules', 'shared'), { data: JSON.stringify(schedule) });
+    } catch(e) { console.error('저장 실패:', e); }
+  }
+
+  async function loadFromFirestore() {
+    try {
+      const snap = await getDoc(doc(db, 'schedules', 'shared'));
+      if (snap.exists()) schedule = JSON.parse(snap.data().data);
+    } catch(e) { console.error('불러오기 실패:', e); }
+  }
+
+  // ── Constants ──────────────────────────────────────────────
+  const ACCOUNTS = { '국어':'1111', '영어':'2222', '수학':'3333', '과학':'4444', '역사':'5555' };
+
+  const SUBJECT_COLORS = {
+    '국어': '#2563eb', '영어': '#16a34a', '수학': '#9333ea',
+    '과학': '#dc2626', '역사': '#d97706',
+  };
+
+  const SUBJECT_LIGHT = {
+    '국어': '#dbeafe', '영어': '#dcfce7', '수학': '#f3e8ff',
+    '과학': '#fee2e2', '역사': '#fef3c7',
+  };
+
+  const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+  const DAY_LABEL = { '월':'월요일','화':'화요일','수':'수요일','목':'목요일','금':'금요일','토':'토요일','일':'일요일' };
+  const WEEKDAYS = new Set(['월', '화', '수', '목', '금']);
+
+  const WEEKDAY_SLOTS = [
+    '15:30 ~ 17:00','17:00 ~ 18:30','18:30 ~ 20:00','20:00 ~ 21:30','21:30 ~ 23:00',
+  ];
+  const WEEKEND_SLOTS = [
+    '10:00 ~ 11:30','11:30 ~ 13:00','13:00 ~ 14:30','14:30 ~ 16:00',
+  ];
+  const ALL_SLOTS = [
+    '10:00 ~ 11:30','11:30 ~ 13:00','13:00 ~ 14:30','14:30 ~ 16:00',
+    '15:30 ~ 17:00','17:00 ~ 18:30','18:30 ~ 20:00','20:00 ~ 21:30','21:30 ~ 23:00',
+  ];
+
+  // schedule[subject][day][slot] = ['학생1', ...]
+  let schedule = {};
+  Object.keys(ACCOUNTS).forEach(s => { schedule[s] = {}; });
+
+  let currentSubject = null;
+
+  // ── Helpers ───────────────────────────────────────────────
+  function esc(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function isValidSlot(day, slot) {
+    return WEEKDAYS.has(day) ? WEEKDAY_SLOTS.includes(slot) : WEEKEND_SLOTS.includes(slot);
+  }
+
+  function getStudents(day, slot) {
+    const s = schedule[currentSubject];
+    return (s[day] && s[day][slot]) ? s[day][slot] : [];
+  }
+
+  function setStudents(day, slot, arr) {
+    if (!schedule[currentSubject][day]) schedule[currentSubject][day] = {};
+    schedule[currentSubject][day][slot] = arr;
+    saveToFirestore();
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // STUDENT SCHEDULE LOOKUP
+  // ══════════════════════════════════════════════════════════
+  function searchStudentSchedule() {
+    const name    = document.getElementById('input-student-search').value.trim();
+    const resultEl = document.getElementById('schedule-result');
+
+    if (!name) {
+      resultEl.innerHTML = '<div class="no-result">이름을 입력해 주세요.</div>';
+      return;
+    }
+
+    // day+slot → subject 룩업 맵 생성
+    const lookup = {}; // 'day|slot' → subject
+    DAYS.forEach(day => {
+      ALL_SLOTS.forEach(slot => {
+        if (!isValidSlot(day, slot)) return;
+        Object.keys(SUBJECT_COLORS).forEach(subject => {
+          const arr = schedule[subject][day] && schedule[subject][day][slot];
+          if (arr && arr.includes(name)) lookup[day + '|' + slot] = subject;
+        });
+      });
+    });
+
+    const totalClasses    = Object.keys(lookup).length;
+    const subjectsFound   = [...new Set(Object.values(lookup))];
+
+    if (totalClasses === 0) {
+      resultEl.innerHTML = `
+        <div class="no-result">
+          <strong style="color:#2d3748">${esc(name)}</strong> 학생의 수업이 없습니다.<br>
+          <span style="font-size:0.72rem">강사님이 아직 등록하지 않았거나<br>이름을 다시 확인해 주세요.</span>
+        </div>`;
+      return;
+    }
+
+    // 간단한 안내 메시지 표시 후 전체 시간표 오버레이 열기
+    resultEl.innerHTML = `
+      <hr class="divider">
+      <div style="text-align:center;padding:10px 0 4px">
+        <div style="font-size:0.88rem;font-weight:800;color:#c05621">${esc(name)} 학생</div>
+        <div style="font-size:0.75rem;color:#718096;margin-top:4px">총 ${totalClasses}개 수업 · ${subjectsFound.length}개 과목</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px">
+          ${subjectsFound.map(s => `<span style="background:${SUBJECT_COLORS[s]};color:white;border-radius:999px;padding:3px 11px;font-size:0.72rem;font-weight:700">${esc(s)}</span>`).join('')}
+        </div>
+      </div>`;
+
+    openStudentSchedule(name, lookup, subjectsFound, totalClasses);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // STUDENT TIMETABLE OVERLAY
+  // ══════════════════════════════════════════════════════════
+  let stuCurrentName   = '';
+  let stuCurrentLookup = {};
+
+  function openStudentSchedule(name, lookup, subjectsFound, totalClasses) {
+    stuCurrentName   = name;
+    stuCurrentLookup = lookup;
+
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${['일','월','화','수','목','금','토'][now.getDay()]}요일)`;
+
+    document.getElementById('stu-name-title').textContent   = name + ' 학생';
+    document.getElementById('stu-toolbar-sub').textContent  = `총 ${totalClasses}개 수업 · ${subjectsFound.length}개 과목`;
+    document.getElementById('stu-date').innerHTML           = `조회일: ${dateStr}`;
+
+    // 요약 칩
+    document.getElementById('stu-summary').innerHTML = [
+      `<div class="stu-chip"><div class="stu-chip-dot" style="background:#f97316"></div>수업 수: <strong>${totalClasses}개</strong></div>`,
+      `<div class="stu-chip"><div class="stu-chip-dot" style="background:#1e3a5f"></div>과목 수: <strong>${subjectsFound.length}개</strong></div>`,
+      ...subjectsFound.map(s =>
+        `<div class="stu-chip"><div class="stu-chip-dot" style="background:${SUBJECT_COLORS[s]}"></div>${esc(s)}</div>`
+      )
+    ].join('');
+
+    // 테이블 헤더
+    const hRow = document.getElementById('stu-grid-header');
+    hRow.innerHTML = '<th>시간</th>';
+    DAYS.forEach(day => {
+      const th = document.createElement('th');
+      th.textContent = day + '요일';
+      th.className   = WEEKDAYS.has(day) ? 'sg-weekday' : 'sg-weekend';
+      hRow.appendChild(th);
+    });
+
+    // 테이블 바디
+    const tbody = document.getElementById('stu-grid-body');
+    tbody.innerHTML = '';
+    ALL_SLOTS.forEach(slot => {
+      const tr = document.createElement('tr');
+
+      // 시간 셀
+      const tdT = document.createElement('td');
+      tdT.className = 'sg-time';
+      const [s, e] = slot.split(' ~ ');
+      tdT.innerHTML = `${s}<br><span style="color:#cbd5e0;font-size:0.62rem">▼</span><br>${e}`;
+      tr.appendChild(tdT);
+
+      DAYS.forEach(day => {
+        const td  = document.createElement('td');
+        const key = day + '|' + slot;
+        if (!isValidSlot(day, slot)) {
+          td.className = 'sg-noop';
+        } else if (lookup[key]) {
+          const sub   = lookup[key];
+          const color = SUBJECT_COLORS[sub];
+          const light = SUBJECT_LIGHT[sub];
+          td.className = `sg-slot ${WEEKDAYS.has(day) ? 'sg-weekday' : 'sg-weekend'}`;
+          const card = document.createElement('div');
+          card.className = 'stu-class-card';
+          card.style.background  = light;
+          card.style.borderColor = color;
+          card.innerHTML = `
+            <div class="stu-class-subject" style="color:${color}">${esc(sub)}</div>
+            <div class="stu-class-time" style="color:${color}">${esc(slot)}</div>`;
+          td.appendChild(card);
+        } else {
+          td.className = `sg-slot ${WEEKDAYS.has(day) ? 'sg-weekday' : 'sg-weekend'}`;
+        }
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('student-schedule-backdrop').classList.add('active');
+  }
+
+  function closeStudentSchedule() {
+    document.getElementById('student-schedule-backdrop').classList.remove('active');
+  }
+
+  function doPrintStudentSchedule() {
+    const name    = stuCurrentName;
+    const lookup  = stuCurrentLookup;
+    const now     = new Date();
+    const dateStr = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${['일','월','화','수','목','금','토'][now.getDay()]}요일)`;
+    const subjectsFound = [...new Set(Object.values(lookup))];
+    const totalClasses  = Object.keys(lookup).length;
+
+    const theadHtml = '<tr>' +
+      `<th style="background:#2d3748;color:white;padding:8px 6px;border:1px solid #4a5568;font-size:0.74rem;width:100px">시간</th>` +
+      DAYS.map(day =>
+        `<th style="background:${WEEKDAYS.has(day)?'#1e3a5f':'#c05621'};color:white;padding:8px 6px;border:1px solid #4a5568;font-size:0.74rem">${day}요일</th>`
+      ).join('') + '</tr>';
+
+    const tbodyHtml = ALL_SLOTS.map(slot => {
+      const [s, e] = slot.split(' ~ ');
+      const cells = DAYS.map(day => {
+        if (!isValidSlot(day, slot)) return `<td style="background:#edf2f7;border:1px solid #e2e8f0"></td>`;
+        const key = day + '|' + slot;
+        if (lookup[key]) {
+          const sub   = lookup[key];
+          const color = SUBJECT_COLORS[sub];
+          const light = SUBJECT_LIGHT[sub];
+          return `<td style="background:${light};border:2px solid ${color};text-align:center;vertical-align:middle;padding:8px 4px">
+            <div style="font-size:1rem;font-weight:900;color:${color}">${esc(sub)}</div>
+            <div style="font-size:0.62rem;color:${color};opacity:0.8;margin-top:3px">${esc(slot)}</div>
+          </td>`;
+        }
+        return `<td style="background:#f8fafc;border:1px solid #e2e8f0"></td>`;
+      }).join('');
+      return `<tr>
+        <td style="background:#f7fafc;font-weight:700;color:#4a5568;text-align:center;font-size:0.7rem;border:1px solid #e2e8f0;white-space:nowrap;padding:7px 6px">${s}<br><span style="color:#cbd5e0;font-size:0.6rem">▼</span><br>${e}</td>
+        ${cells}</tr>`;
+    }).join('');
+
+    const subChips = subjectsFound.map(s =>
+      `<span style="display:inline-flex;align-items:center;gap:6px;background:#f0f4f8;border-radius:999px;padding:4px 13px;font-size:0.76rem;font-weight:700;color:#2d3748;margin-right:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${SUBJECT_COLORS[s]};display:inline-block"></span>${esc(s)}
+      </span>`
+    ).join('');
+
+    const printHtml = `
+      <div style="font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;padding:0">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:3px solid #c05621;padding-bottom:10px;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:1.4rem;font-weight:900;color:#c05621">${esc(name)} 학생 — 나의 주간 시간표</div>
+            <div style="font-size:0.78rem;color:#4a5568;margin-top:4px">나의 수업 일정표</div>
+          </div>
+          <div style="font-size:0.72rem;color:#718096;text-align:right">
+            조회일: ${dateStr}<br>
+            총 ${totalClasses}개 수업 · ${subjectsFound.length}개 과목
+          </div>
+        </div>
+        <div style="margin-bottom:14px">${subChips}</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem">
+          <thead>${theadHtml}</thead>
+          <tbody>${tbodyHtml}</tbody>
+        </table>
+      </div>`;
+
+    const printArea = document.getElementById('printable-area');
+    printArea.innerHTML = printHtml;
+    printArea.style.display = 'block';
+    window.print();
+    setTimeout(() => { printArea.style.display = 'none'; printArea.innerHTML = ''; }, 500);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // TIMETABLE BUILD
+  // ══════════════════════════════════════════════════════════
+  function buildTable() {
+    const headerRow = document.getElementById('header-row');
+    const tbody     = document.getElementById('table-body');
+    const color     = SUBJECT_COLORS[currentSubject];
+
+    document.documentElement.style.setProperty('--subject-color', color);
+
+    headerRow.innerHTML = '<th>시간</th>';
+    DAYS.forEach(day => {
+      const th = document.createElement('th');
+      th.textContent = day + '요일';
+      th.className = WEEKDAYS.has(day) ? 'weekday' : 'weekend';
+      headerRow.appendChild(th);
+    });
+
+    tbody.innerHTML = '';
+    ALL_SLOTS.forEach(slot => {
+      const tr = document.createElement('tr');
+
+      const tdL = document.createElement('td');
+      tdL.className = 'time-label';
+      const [s, e] = slot.split(' ~ ');
+      tdL.innerHTML = `${s}<br><span style="color:#cbd5e0;font-size:0.65rem">▼</span><br>${e}`;
+      tr.appendChild(tdL);
+
+      DAYS.forEach(day => {
+        const td = document.createElement('td');
+        if (!isValidSlot(day, slot)) {
+          td.className = 'slot no-op';
+        } else {
+          td.className = `slot ${WEEKDAYS.has(day) ? 'weekday-slot' : 'weekend-slot'}`;
+          renderSlot(td, day, slot);
+        }
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    updateStats();
+    buildLegend();
+  }
+
+  function renderSlot(td, day, slot) {
+    td.innerHTML = '';
+    const students = getStudents(day, slot);
+    const color    = SUBJECT_COLORS[currentSubject];
+    const light    = SUBJECT_LIGHT[currentSubject];
+
+    if (students.length === 0) {
+      const btn = document.createElement('button');
+      btn.className = 'slot-add-btn';
+      btn.textContent = '+';
+      btn.addEventListener('click', () => openModal(day, slot));
+      td.appendChild(btn);
+    } else {
+      const card = document.createElement('div');
+      card.className = 'class-card';
+      card.style.background = light;
+      card.style.borderColor = color;
+
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="card-subject" style="color:${color}">${esc(currentSubject)}</span>
+          <span class="card-count" style="color:${color}">${students.length}/10</span>
+        </div>
+        <div class="card-students" style="color:${color}">${students.map(n => `<span>${esc(n)}</span>`).join('')}</div>
+      `;
+      card.addEventListener('click', () => openModal(day, slot));
+      td.appendChild(card);
+    }
+  }
+
+  function updateStats() {
+    const sub = schedule[currentSubject];
+    let slotCount = 0, studentCount = 0;
+    Object.values(sub).forEach(dayData => {
+      Object.values(dayData).forEach(arr => {
+        if (arr && arr.length > 0) { slotCount++; studentCount += arr.length; }
+      });
+    });
+    document.getElementById('stat-slots').textContent    = slotCount;
+    document.getElementById('stat-students').textContent = studentCount;
+    document.getElementById('stat-capacity').textContent = Math.round(slotCount / 35 * 100) + '%';
+  }
+
+  function buildLegend() {
+    document.getElementById('legend-bar').innerHTML =
+      Object.entries(SUBJECT_COLORS).map(([sub, col]) => `
+        <div class="legend-item">
+          <div class="legend-dot" style="background:${col}"></div>
+          <span>${sub}</span>
+        </div>
+      `).join('');
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // TEACHER MODAL
+  // ══════════════════════════════════════════════════════════
+  let modalDay = null, modalSlot = null;
+
+  function openModal(day, slot) {
+    modalDay  = day;
+    modalSlot = slot;
+
+    const color = SUBJECT_COLORS[currentSubject];
+    document.getElementById('modal-title').textContent = `${currentSubject} — ${day}요일 ${slot}`;
+    document.getElementById('modal-meta').textContent  = '학생 이름을 추가하거나 삭제하세요';
+    document.getElementById('btn-add-student').style.background = color;
+    document.getElementById('input-student-name').value = '';
+
+    renderStudentList();
+    document.getElementById('modal-backdrop').classList.add('active');
+    document.getElementById('input-student-name').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('modal-backdrop').classList.remove('active');
+    const msgEl = document.getElementById('conflict-msg');
+    msgEl.style.display = 'none';
+    clearTimeout(msgEl._timer);
+    if (modalDay && modalSlot) {
+      const rows = document.querySelectorAll('#table-body tr');
+      ALL_SLOTS.forEach((slot, ri) => {
+        if (slot !== modalSlot) return;
+        const cells = rows[ri].querySelectorAll('td');
+        DAYS.forEach((day, di) => {
+          if (day === modalDay && isValidSlot(day, slot))
+            renderSlot(cells[di + 1], day, slot);
+        });
+      });
+      updateStats();
+    }
+  }
+
+  function renderStudentList() {
+    const students = getStudents(modalDay, modalSlot);
+    const list     = document.getElementById('student-list');
+    const count    = students.length;
+    const color    = SUBJECT_COLORS[currentSubject];
+
+    document.getElementById('cap-text').textContent = `${count} / 10명`;
+    document.getElementById('cap-fill').style.width      = (count / 10 * 100) + '%';
+    document.getElementById('cap-fill').style.background = count >= 10 ? '#fc8181' : color;
+
+    const full = count >= 10;
+    document.getElementById('input-student-name').disabled = full;
+    document.getElementById('input-student-name').placeholder =
+      full ? '정원이 가득 찼습니다 (최대 10명)' : '학생 이름 입력 후 추가';
+    document.getElementById('btn-add-student').disabled = full;
+
+    if (count === 0) {
+      list.innerHTML = '<div class="empty-list-msg">등록된 학생이 없습니다</div>';
+      return;
+    }
+
+    list.innerHTML = students.map((name, i) => `
+      <div class="student-row">
+        <span class="student-num">${i + 1}</span>
+        <span class="student-name">${esc(name)}</span>
+        <button class="btn-remove" data-index="${i}" title="삭제">✕</button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.btn-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const arr = getStudents(modalDay, modalSlot).slice();
+        arr.splice(parseInt(btn.dataset.index), 1);
+        setStudents(modalDay, modalSlot, arr);
+        renderStudentList();
+      });
+    });
+  }
+
+  // 같은 slot 에서 다른 과목에 이미 등록된 과목을 반환 (없으면 null)
+  function checkSlotConflict(name, day, slot) {
+    for (const subject of Object.keys(SUBJECT_COLORS)) {
+      if (subject === currentSubject) continue;
+      const arr = schedule[subject][day] && schedule[subject][day][slot];
+      if (arr && arr.includes(name)) return subject;
+    }
+    return null;
+  }
+
+  function showConflictError(name, conflictSubject) {
+    const color  = SUBJECT_COLORS[conflictSubject];
+    const msgEl  = document.getElementById('conflict-msg');
+    msgEl.style.display = 'flex';
+    msgEl.innerHTML = `
+      <span class="conflict-icon">⚠️</span>
+      <span>
+        <strong>${esc(name)}</strong> 학생은 이 시간에 이미
+        <span style="display:inline-block;padding:1px 9px;border-radius:999px;background:${color};color:white;font-weight:800;font-size:0.78rem">${esc(conflictSubject)}</span>
+        수업에 등록되어 있어 추가할 수 없습니다.
+      </span>
+    `;
+    // 4초 후 자동 사라짐
+    clearTimeout(msgEl._timer);
+    msgEl._timer = setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+  }
+
+  function addStudent() {
+    const input = document.getElementById('input-student-name');
+    const raw   = input.value.trim();
+    if (!raw) { input.focus(); return; }
+
+    // 쉼표로 구분된 여러 이름 처리
+    const names = raw.split(',').map(n => n.trim()).filter(n => n.length > 0);
+    let arr = getStudents(modalDay, modalSlot).slice();
+
+    const skipped = [];
+
+    for (const name of names) {
+      if (arr.length >= 10) { skipped.push(name + '(정원초과)'); continue; }
+      if (arr.includes(name)) { skipped.push(name + '(중복)'); continue; }
+      const conflictSubject = checkSlotConflict(name, modalDay, modalSlot);
+      if (conflictSubject) { skipped.push(name + `(${conflictSubject}수업중복)`); continue; }
+      arr.push(name);
+    }
+
+    setStudents(modalDay, modalSlot, arr);
+    document.getElementById('conflict-msg').style.display = 'none';
+    input.value = '';
+    input.focus();
+    renderStudentList();
+
+    if (skipped.length > 0) {
+      const msgEl = document.getElementById('conflict-msg');
+      msgEl.style.display = 'flex';
+      msgEl.innerHTML = `<span class="conflict-icon">⚠️</span><span>추가 불가: <strong>${skipped.join(', ')}</strong></span>`;
+      clearTimeout(msgEl._timer);
+      msgEl._timer = setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // AUTH
+  // ══════════════════════════════════════════════════════════
+  function login() {
+    const subject = document.getElementById('login-subject').value;
+    const pw      = document.getElementById('login-pw').value;
+    const errEl   = document.getElementById('login-error');
+    errEl.textContent = '';
+
+    if (!subject) { errEl.textContent = '과목을 선택해 주세요.'; return; }
+    if (!pw)      { errEl.textContent = '비밀번호를 입력해 주세요.'; return; }
+    if (ACCOUNTS[subject] !== pw) {
+      errEl.textContent = '비밀번호가 올바르지 않습니다.';
+      document.getElementById('login-pw').value = '';
+      document.getElementById('login-pw').focus();
+      return;
+    }
+
+    currentSubject = subject;
+    document.getElementById('badge-subject').textContent = subject;
+    document.getElementById('teacher-badge').style.background = SUBJECT_COLORS[subject];
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    loadFromFirestore().then(() => buildTable());
+  }
+
+  function logout() {
+    currentSubject = null;
+    document.getElementById('login-subject').value = '';
+    document.getElementById('login-pw').value = '';
+    document.getElementById('login-error').textContent = '';
+    // Clear student search result on logout so it reflects any new data
+    document.getElementById('schedule-result').innerHTML = '';
+    document.getElementById('input-student-search').value = '';
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('login-screen').classList.remove('hidden');
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // PRINT PREVIEW
+  // ══════════════════════════════════════════════════════════
+  function openPrintPreview() {
+    const color = SUBJECT_COLORS[currentSubject];
+
+    // 헤더
+    document.getElementById('preview-title').textContent = `학원 주간 시간표 — ${currentSubject}`;
+    document.getElementById('preview-sub').textContent   = `담당: ${currentSubject} 선생님`;
+    const now = new Date();
+    document.getElementById('preview-date').innerHTML =
+      `출력일: ${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일<br>` +
+      `(${['일','월','화','수','목','금','토'][now.getDay()]}요일)`;
+
+    // 통계 요약 칩
+    const sub = schedule[currentSubject];
+    let totalSlots = 0, totalStudents = 0;
+    Object.values(sub).forEach(d => Object.values(d).forEach(arr => {
+      if (arr && arr.length > 0) { totalSlots++; totalStudents += arr.length; }
+    }));
+    document.getElementById('preview-summary').innerHTML = `
+      <div class="preview-chip"><div class="preview-chip-dot" style="background:${color}"></div>수업 슬롯: <strong>${totalSlots}개</strong></div>
+      <div class="preview-chip"><div class="preview-chip-dot" style="background:${color}"></div>등록 학생: <strong>${totalStudents}명</strong></div>
+      <div class="preview-chip"><div class="preview-chip-dot" style="background:#e2e8f0"></div>최대 정원: <strong>${totalSlots * 10}명</strong></div>
+    `;
+
+    // 테이블 헤더
+    const hRow = document.getElementById('preview-header-row');
+    hRow.innerHTML = '<th class="ph-time">시간</th>';
+    DAYS.forEach(day => {
+      const th = document.createElement('th');
+      th.textContent = day + '요일';
+      th.className = WEEKDAYS.has(day) ? 'ph-weekday' : 'ph-weekend';
+      hRow.appendChild(th);
+    });
+
+    // 테이블 바디
+    const tbody = document.getElementById('preview-tbody');
+    tbody.innerHTML = '';
+    ALL_SLOTS.forEach(slot => {
+      const tr = document.createElement('tr');
+
+      const tdT = document.createElement('td');
+      tdT.className = 'pt-time';
+      tdT.innerHTML = slot.replace(' ~ ', '<br><span style="color:#a0aec0;font-size:0.65rem">▼</span><br>');
+      tr.appendChild(tdT);
+
+      DAYS.forEach(day => {
+        const td = document.createElement('td');
+        if (!isValidSlot(day, slot)) {
+          td.className = 'pt-no-op';
+        } else {
+          const students = (sub[day] && sub[day][slot]) ? sub[day][slot] : [];
+          if (students.length === 0) {
+            td.className = 'pt-empty';
+          } else {
+            td.innerHTML =
+              `<div class="pt-slot-count" style="color:${color}">${students.length}/10명</div>` +
+              `<ul class="pt-student-list">${students.map(n =>
+                `<li>${esc(n)}</li>`
+              ).join('')}</ul>`;
+          }
+        }
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('print-preview-backdrop').classList.add('active');
+  }
+
+  function closePrintPreview() {
+    document.getElementById('print-preview-backdrop').classList.remove('active');
+  }
+
+  function doPrint() {
+    const color  = SUBJECT_COLORS[currentSubject];
+    const now    = new Date();
+    const dateStr = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${['일','월','화','수','목','금','토'][now.getDay()]}요일)`;
+
+    // 인쇄용 HTML 구성
+    const sub = schedule[currentSubject];
+    let totalSlots = 0, totalStudents = 0;
+    Object.values(sub).forEach(d => Object.values(d).forEach(arr => {
+      if (arr && arr.length > 0) { totalSlots++; totalStudents += arr.length; }
+    }));
+
+    const theadHtml = '<tr>' +
+      `<th style="background:#2d3748;color:white;padding:8px 6px;border:1px solid #4a5568;font-size:0.74rem;width:100px">시간</th>` +
+      DAYS.map(day =>
+        `<th style="background:${WEEKDAYS.has(day)?'#1e3a5f':'#c05621'};color:white;padding:8px 6px;border:1px solid #4a5568;font-size:0.74rem">${day}요일</th>`
+      ).join('') +
+      '</tr>';
+
+    const tbodyHtml = ALL_SLOTS.map(slot => {
+      const cells = DAYS.map(day => {
+        if (!isValidSlot(day, slot)) return `<td style="background:#edf2f7;border:1px solid #e2e8f0"></td>`;
+        const students = (sub[day] && sub[day][slot]) ? sub[day][slot] : [];
+        if (students.length === 0) return `<td style="background:#f0f4f8;border:1px solid #e2e8f0;min-height:56px"></td>`;
+        return `<td style="border:1px solid #e2e8f0;vertical-align:top;padding:6px 7px">
+          <div style="font-size:0.62rem;color:${color};font-weight:700;margin-bottom:3px">${students.length}/10명</div>
+          <ul style="list-style:none;margin:0;padding:0">${students.map(n =>
+            `<li style="font-size:0.7rem;color:#2d3748;padding:2px 0;border-bottom:1px dotted #e2e8f0">${esc(n)}</li>`
+          ).join('')}</ul>
+        </td>`;
+      }).join('');
+      const [s, e] = slot.split(' ~ ');
+      return `<tr>
+        <td style="background:#f7fafc;font-weight:700;color:#4a5568;text-align:center;font-size:0.7rem;border:1px solid #e2e8f0;white-space:nowrap;padding:7px 6px">${s}<br><span style="color:#cbd5e0;font-size:0.6rem">▼</span><br>${e}</td>
+        ${cells}
+      </tr>`;
+    }).join('');
+
+    const printHtml = `
+      <div style="font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;padding:0">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:14px">
+          <div>
+            <div style="font-size:1.3rem;font-weight:900;color:#1e3a5f">학원 주간 시간표 — ${esc(currentSubject)}</div>
+            <div style="font-size:0.8rem;color:#4a5568;margin-top:3px">담당: ${esc(currentSubject)} 선생님</div>
+          </div>
+          <div style="font-size:0.73rem;color:#718096;text-align:right">
+            출력일: ${dateStr}<br>
+            슬롯 ${totalSlots}개 &nbsp;|&nbsp; 총 ${totalStudents}명 등록
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem">
+          <thead>${theadHtml}</thead>
+          <tbody>${tbodyHtml}</tbody>
+        </table>
+      </div>`;
+
+    const printArea = document.getElementById('printable-area');
+    printArea.innerHTML = printHtml;
+    printArea.style.display = 'block';
+
+    window.print();
+
+    setTimeout(() => {
+      printArea.style.display = 'none';
+      printArea.innerHTML = '';
+    }, 500);
+  }
+
+  // ── Event Listeners ───────────────────────────────────────
+  document.getElementById('btn-login').addEventListener('click', login);
+  document.getElementById('btn-logout').addEventListener('click', logout);
+  document.getElementById('btn-print').addEventListener('click', openPrintPreview);
+  document.getElementById('btn-close-preview').addEventListener('click', closePrintPreview);
+  document.getElementById('btn-do-print').addEventListener('click', doPrint);
+  document.getElementById('print-preview-backdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('print-preview-backdrop')) closePrintPreview();
+  });
+  document.getElementById('btn-add-student').addEventListener('click', addStudent);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+  document.getElementById('btn-student-search').addEventListener('click', searchStudentSchedule);
+  document.getElementById('btn-close-stu').addEventListener('click', closeStudentSchedule);
+  document.getElementById('btn-stu-print').addEventListener('click', doPrintStudentSchedule);
+  document.getElementById('student-schedule-backdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('student-schedule-backdrop')) closeStudentSchedule();
+  });
+
+  document.getElementById('modal-backdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-backdrop')) closeModal();
+  });
+
+  document.getElementById('login-pw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+
+  document.getElementById('input-student-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addStudent();
+  });
+
+  document.getElementById('input-student-search').addEventListener('keydown', e => {
+    if (e.key === 'Enter') searchStudentSchedule();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // 슬롯 전체 삭제
+  document.getElementById('btn-clear-slot').addEventListener('click', () => {
+    if (!modalDay || !modalSlot) return;
+    if (!confirm(`${modalDay}요일 ${modalSlot} 수업의 학생을 전체 삭제할까요?`)) return;
+    setStudents(modalDay, modalSlot, []);
+    renderStudentList();
+  });
+
+  // 주간 전체 초기화
+  document.getElementById('btn-reset-all').addEventListener('click', () => {
+    if (!confirm(`${currentSubject} 과목의 모든 학생을 초기화할까요?\n(한 달 마감 후 새 학기 시작 시 사용)`) ) return;
+    schedule[currentSubject] = {};
+    saveToFirestore();
+    buildTable();
+  });
+
+  // 페이지 로드 시 Firestore 데이터 미리 불러오기 (학생 검색용)
+  loadFromFirestore();
+</script>
+</body>
+</html>

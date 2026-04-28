@@ -332,13 +332,13 @@
 
     table {
       width: 100%;
-      table-layout: fixed;
+      table-layout: auto;
       border-collapse: collapse;
       background: white;
       border-radius: 14px;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      min-width: 680px;
+      min-width: 700px;
     }
 
     thead th { padding: 13px 8px; font-size: 0.82rem; font-weight: 700; text-align: center; }
@@ -593,6 +593,113 @@
     }
 
     .conflict-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ══════════════ SUBJECT OVERVIEW ══════════════ */
+    #subject-overview-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 700;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 16px 32px;
+      overflow-y: auto;
+    }
+    #subject-overview-backdrop.active { display: flex; }
+
+    #subject-overview-box {
+      background: white;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 1400px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.32);
+      overflow: hidden;
+      animation: slideUp 0.2s ease;
+    }
+
+    .overview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      color: white;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .overview-toolbar-title { font-size: 1rem; font-weight: 800; }
+    .overview-toolbar-sub   { font-size: 0.73rem; opacity: 0.8; margin-top: 2px; }
+
+    .btn-close-overview {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-close-overview:hover { background: rgba(255,255,255,0.3); }
+
+    .btn-print-overview {
+      padding: 8px 20px;
+      background: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-print-overview:hover { opacity: 0.85; }
+
+    #overview-sheet { padding: 22px 20px 28px; overflow-x: auto; }
+
+    .btn-overview {
+      padding: 7px 16px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #4a5568;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-overview:hover { background: #f0fdf4; border-color: #86efac; color: #166534; }
+
+    /* ══════════════ CLASS TABS ══════════════ */
+    #class-tabs {
+      display: none;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .class-tab {
+      padding: 8px 22px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #4a5568;
+      transition: all 0.2s;
+    }
+
+    .class-tab:hover {
+      border-color: var(--subject-color, #3b82f6);
+      color: var(--subject-color, #3b82f6);
+    }
+
+    .class-tab.tab-active {
+      background: var(--subject-color, #3b82f6);
+      border-color: var(--subject-color, #3b82f6);
+      color: white;
+    }
 
     .bottom-bar { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 16px; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.76rem; color: #4a5568; }
@@ -981,11 +1088,36 @@
         <label>과목 (아이디)</label>
         <select id="login-subject">
           <option value="">과목을 선택하세요</option>
-          <option value="국어">국어</option>
-          <option value="영어">영어</option>
-          <option value="수학">수학</option>
-          <option value="과학">과학</option>
-          <option value="역사">역사</option>
+          <optgroup label="국어">
+            <option value="국어1">국어 1반</option>
+            <option value="국어2">국어 2반</option>
+            <option value="국어3">국어 3반</option>
+            <option value="국어4">국어 4반</option>
+          </optgroup>
+          <optgroup label="영어">
+            <option value="영어1">영어 1반</option>
+            <option value="영어2">영어 2반</option>
+            <option value="영어3">영어 3반</option>
+            <option value="영어4">영어 4반</option>
+          </optgroup>
+          <optgroup label="수학">
+            <option value="수학1">수학 1반</option>
+            <option value="수학2">수학 2반</option>
+            <option value="수학3">수학 3반</option>
+            <option value="수학4">수학 4반</option>
+          </optgroup>
+          <optgroup label="과학">
+            <option value="과학1">과학 1반</option>
+            <option value="과학2">과학 2반</option>
+            <option value="과학3">과학 3반</option>
+            <option value="과학4">과학 4반</option>
+          </optgroup>
+          <optgroup label="역사">
+            <option value="역사1">역사 1반</option>
+            <option value="역사2">역사 2반</option>
+            <option value="역사3">역사 3반</option>
+            <option value="역사4">역사 4반</option>
+          </optgroup>
         </select>
       </div>
 
@@ -1035,11 +1167,14 @@
       <div class="badge-pill" id="teacher-badge">
         <span id="badge-subject"></span> 선생님
       </div>
+      <button class="btn-overview" id="btn-subject-overview">📋 전체 반 보기</button>
       <button class="btn-print" id="btn-print">🖨️ 인쇄 미리보기</button>
       <button class="btn-reset-all" id="btn-reset-all">🗑️ 전체 초기화</button>
       <button class="btn-logout" id="btn-logout">로그아웃</button>
     </div>
   </div>
+
+  <div id="class-tabs"></div>
 
   <div class="stats">
     <div class="stat-card">
@@ -1068,6 +1203,23 @@
   </div>
 
   <div class="bottom-bar" id="legend-bar"></div>
+</div>
+
+<!-- ══════════════════ SUBJECT OVERVIEW ══════════════════ -->
+<div id="subject-overview-backdrop">
+  <div id="subject-overview-box">
+    <div class="overview-toolbar" id="overview-toolbar">
+      <div>
+        <div class="overview-toolbar-title" id="overview-toolbar-title"></div>
+        <div class="overview-toolbar-sub" id="overview-toolbar-sub"></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-close-overview" id="btn-close-overview">✕ 닫기</button>
+        <button class="btn-print-overview" id="btn-print-overview">🖨️ 출력하기</button>
+      </div>
+    </div>
+    <div id="overview-sheet"></div>
+  </div>
 </div>
 
 <!-- ══════════════════ PRINT PREVIEW ══════════════════ -->
@@ -1158,6 +1310,9 @@
 
     <div class="student-list" id="student-list"></div>
 
+    <!-- 같은 과목 다른 반 현황 -->
+    <div id="sibling-info" style="margin-bottom:12px"></div>
+
     <!-- 시간 충돌 경고 -->
     <div id="conflict-msg" style="display:none"></div>
 
@@ -1192,29 +1347,36 @@
 
   async function saveToFirestore() {
     try {
-      await setDoc(doc(db, 'schedules', 'shared'), { data: JSON.stringify(schedule) });
+      await setDoc(doc(db, 'schedules', currentSubject), { data: JSON.stringify(schedule[currentSubject]) });
     } catch(e) { console.error('저장 실패:', e); }
   }
 
   async function loadFromFirestore() {
     try {
-      const snap = await getDoc(doc(db, 'schedules', 'shared'));
-      if (snap.exists()) schedule = JSON.parse(snap.data().data);
+      const keys = Object.keys(ACCOUNTS);
+      const snaps = await Promise.all(keys.map(s => getDoc(doc(db, 'schedules', s))));
+      keys.forEach((s, i) => {
+        schedule[s] = snaps[i].exists() ? JSON.parse(snaps[i].data().data) : {};
+      });
     } catch(e) { console.error('불러오기 실패:', e); }
   }
 
   // ── Constants ──────────────────────────────────────────────
-  const ACCOUNTS = { '국어':'1111', '영어':'2222', '수학':'3333', '과학':'4444', '역사':'5555' };
+  const BASE_SUBJECTS = ['국어','영어','수학','과학','역사'];
+  const PW_MAP   = { '국어':'1111', '영어':'2222', '수학':'3333', '과학':'4444', '역사':'5555' };
+  const COLOR_MAP = { '국어':'#2563eb', '영어':'#16a34a', '수학':'#9333ea', '과학':'#dc2626', '역사':'#d97706' };
+  const LIGHT_MAP = { '국어':'#dbeafe', '영어':'#dcfce7', '수학':'#f3e8ff', '과학':'#fee2e2', '역사':'#fef3c7' };
 
-  const SUBJECT_COLORS = {
-    '국어': '#2563eb', '영어': '#16a34a', '수학': '#9333ea',
-    '과학': '#dc2626', '역사': '#d97706',
-  };
-
-  const SUBJECT_LIGHT = {
-    '국어': '#dbeafe', '영어': '#dcfce7', '수학': '#f3e8ff',
-    '과학': '#fee2e2', '역사': '#fef3c7',
-  };
+  const ACCOUNTS = {};
+  const SUBJECT_COLORS = {};
+  const SUBJECT_LIGHT  = {};
+  BASE_SUBJECTS.forEach(s => {
+    for (let i = 1; i <= 4; i++) {
+      ACCOUNTS[s+i]       = PW_MAP[s];
+      SUBJECT_COLORS[s+i] = COLOR_MAP[s];
+      SUBJECT_LIGHT[s+i]  = LIGHT_MAP[s];
+    }
+  });
 
   const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
   const DAY_LABEL = { '월':'월요일','화':'화요일','수':'수요일','목':'목요일','금':'금요일','토':'토요일','일':'일요일' };
@@ -1250,6 +1412,7 @@
 
   function getStudents(day, slot) {
     const s = schedule[currentSubject];
+    if (!s) return [];
     return (s[day] && s[day][slot]) ? s[day][slot] : [];
   }
 
@@ -1460,23 +1623,147 @@
   }
 
   // ══════════════════════════════════════════════════════════
+  // SUBJECT OVERVIEW (전체 반 보기)
+  // ══════════════════════════════════════════════════════════
+  function buildOverviewHTML(forPrint) {
+    const base       = currentSubject.slice(0, -1);
+    const allClasses = getAllClasses();
+    const color      = COLOR_MAP[base];
+    const light      = LIGHT_MAP[base];
+    const now        = new Date();
+    const dateStr    = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${['일','월','화','수','목','금','토'][now.getDay()]}요일)`;
+
+    const fs  = forPrint ? '0.62rem' : '0.7rem';
+    const fss = forPrint ? '0.55rem' : '0.62rem';
+
+    const theadHtml = `
+      <tr>
+        <th rowspan="2" style="background:#2d3748;color:#e2e8f0;width:82px;text-align:center;font-size:${fs};font-weight:700;padding:7px 3px;border:1px solid #4a5568">시간</th>
+        ${DAYS.map(day => `
+          <th colspan="${allClasses.length}" style="background:${WEEKDAYS.has(day)?'#1e3a5f':'#c05621'};color:white;text-align:center;padding:7px 3px;font-size:${fs};font-weight:700;border:1px solid rgba(255,255,255,0.25)">
+            ${day}요일
+          </th>`).join('')}
+      </tr>
+      <tr>
+        ${DAYS.map(day => allClasses.map(cls => `
+          <th style="background:${cls===currentSubject?color:(WEEKDAYS.has(day)?'#3d5a8a':'#b05010')};color:white;text-align:center;padding:3px 2px;font-size:${fss};font-weight:700;border:1px solid rgba(255,255,255,0.2)">
+            ${cls}
+          </th>`).join('')).join('')}
+      </tr>`;
+
+    const tbodyHtml = ALL_SLOTS.map(slot => {
+      const [s, e] = slot.split(' ~ ');
+      const cells  = DAYS.map(day => allClasses.map(cls => {
+        if (!isValidSlot(day, slot)) return `<td style="background:#f0f4f8;border:1px solid #e2e8f0"></td>`;
+        const students = (schedule[cls]&&schedule[cls][day]&&schedule[cls][day][slot]) ? schedule[cls][day][slot] : [];
+        if (students.length === 0) return `<td style="background:#fafbff;border:1px solid #e2e8f0"></td>`;
+        return `<td style="background:${light};border:2px solid ${color};vertical-align:top;padding:4px 5px">
+          <div style="font-size:${fss};color:${color};font-weight:700;margin-bottom:2px">${esc(cls)} · ${students.length}/10명</div>
+          <ul style="list-style:none;margin:0;padding:0">
+            ${students.map(n=>`<li style="font-size:${fss};color:#2d3748;padding:1px 0;border-bottom:1px dotted #e2e8f0">${esc(n)}</li>`).join('')}
+          </ul>
+        </td>`;
+      }).join('')).join('');
+
+      return `<tr>
+        <td style="background:#f7fafc;font-weight:700;color:#4a5568;text-align:center;font-size:${fss};border:1px solid #e2e8f0;white-space:nowrap;padding:5px 3px;vertical-align:middle">${s}<br><span style="color:#cbd5e0;font-size:0.5rem">▼</span><br>${e}</td>
+        ${cells}
+      </tr>`;
+    }).join('');
+
+    return `
+      <div style="font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2.5px solid ${color};padding-bottom:10px;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:1.15rem;font-weight:900;color:${color}">${esc(base)} 전체 주간 시간표</div>
+            <div style="font-size:0.76rem;color:#4a5568;margin-top:3px">${allClasses.join(' · ')} — 4개 반 통합 현황</div>
+          </div>
+          <div style="font-size:0.72rem;color:#718096;text-align:right">출력일: ${dateStr}</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="border-collapse:collapse;font-size:${fs};min-width:1100px;width:100%">
+            <thead>${theadHtml}</thead>
+            <tbody>${tbodyHtml}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+
+  function openSubjectOverview() {
+    const base  = currentSubject.slice(0, -1);
+    const color = COLOR_MAP[base];
+
+    document.getElementById('overview-toolbar').style.background = `linear-gradient(135deg,${color}cc,${color})`;
+    document.getElementById('overview-toolbar-title').textContent = `📋 ${base} 전체 주간 시간표`;
+    document.getElementById('overview-toolbar-sub').textContent  = '4개 반 통합 현황 — 읽기 전용';
+    document.getElementById('btn-print-overview').style.color    = color;
+    document.getElementById('overview-sheet').innerHTML = buildOverviewHTML(false);
+    document.getElementById('subject-overview-backdrop').classList.add('active');
+  }
+
+  function closeSubjectOverview() {
+    document.getElementById('subject-overview-backdrop').classList.remove('active');
+  }
+
+  function printSubjectOverview() {
+    const printArea = document.getElementById('printable-area');
+    printArea.innerHTML = `<style>@page{size:landscape;margin:12mm}</style>` + buildOverviewHTML(true);
+    printArea.style.display = 'block';
+    window.print();
+    setTimeout(() => { printArea.style.display = 'none'; printArea.innerHTML = ''; }, 500);
+  }
+
+  // ══════════════════════════════════════════════════════════
   // TIMETABLE BUILD
   // ══════════════════════════════════════════════════════════
-  function buildTable() {
-    const headerRow = document.getElementById('header-row');
-    const tbody     = document.getElementById('table-body');
-    const color     = SUBJECT_COLORS[currentSubject];
+  function getAllClasses() {
+    const base = currentSubject.slice(0, -1);
+    return Object.keys(ACCOUNTS).filter(s => s.startsWith(base)).sort();
+  }
 
+  function getSiblings() {
+    return getAllClasses().filter(s => s !== currentSubject);
+  }
+
+  function buildTable() {
+    const color = SUBJECT_COLORS[currentSubject];
     document.documentElement.style.setProperty('--subject-color', color);
 
-    headerRow.innerHTML = '<th>시간</th>';
+    // ── 반 탭 ─────────────────────────────────────────────
+    const allClasses = getAllClasses();
+    const tabsEl = document.getElementById('class-tabs');
+    tabsEl.style.display = 'flex';
+    tabsEl.innerHTML = allClasses.map(cls =>
+      `<button class="class-tab ${cls === currentSubject ? 'tab-active' : ''}" data-cls="${cls}">${cls}</button>`
+    ).join('');
+    tabsEl.querySelectorAll('.class-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentSubject = btn.dataset.cls;
+        document.getElementById('badge-subject').textContent = currentSubject;
+        document.getElementById('teacher-badge').style.background = SUBJECT_COLORS[currentSubject];
+        buildTable();
+      });
+    });
+
+    // ── 헤더 (1행) ─────────────────────────────────────────────
+    const thead = document.querySelector('#timetable thead');
+    thead.innerHTML = '';
+
+    const row1 = document.createElement('tr');
+    const timeTh = document.createElement('th');
+    timeTh.style.cssText = 'background:#2d3748;color:#e2e8f0;width:108px;text-align:center;font-size:0.82rem;font-weight:700;padding:13px 8px';
+    timeTh.textContent = '시간';
+    row1.appendChild(timeTh);
     DAYS.forEach(day => {
       const th = document.createElement('th');
       th.textContent = day + '요일';
       th.className = WEEKDAYS.has(day) ? 'weekday' : 'weekend';
-      headerRow.appendChild(th);
+      row1.appendChild(th);
     });
+    thead.appendChild(row1);
 
+    // ── 바디 ─────────────────────────────────────────────
+    const tbody = document.getElementById('table-body');
     tbody.innerHTML = '';
     ALL_SLOTS.forEach(slot => {
       const tr = document.createElement('tr');
@@ -1489,6 +1776,9 @@
 
       DAYS.forEach(day => {
         const td = document.createElement('td');
+        td.dataset.day = day;
+        td.dataset.slot = slot;
+        td.dataset.cls = currentSubject;
         if (!isValidSlot(day, slot)) {
           td.className = 'slot no-op';
         } else {
@@ -1522,7 +1812,6 @@
       card.className = 'class-card';
       card.style.background = light;
       card.style.borderColor = color;
-
       card.innerHTML = `
         <div class="card-header">
           <span class="card-subject" style="color:${color}">${esc(currentSubject)}</span>
@@ -1533,6 +1822,27 @@
       card.addEventListener('click', () => openModal(day, slot));
       td.appendChild(card);
     }
+  }
+
+  function renderReadOnlySlot(td, cls, day, slot) {
+    td.innerHTML = '';
+    const students = (schedule[cls] && schedule[cls][day] && schedule[cls][day][slot]) ? schedule[cls][day][slot] : [];
+    const color    = SUBJECT_COLORS[cls];
+    const light    = SUBJECT_LIGHT[cls];
+    if (students.length === 0) return;
+    const card = document.createElement('div');
+    card.className = 'class-card';
+    card.style.background = light;
+    card.style.borderColor = color;
+    card.style.cursor = 'default';
+    card.style.opacity = '0.85';
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="card-count" style="color:${color}">${students.length}/10</span>
+      </div>
+      <div class="card-students" style="color:${color}">${students.map(n => `<span>${esc(n)}</span>`).join('')}</div>
+    `;
+    td.appendChild(card);
   }
 
   function updateStats() {
@@ -1550,9 +1860,9 @@
 
   function buildLegend() {
     document.getElementById('legend-bar').innerHTML =
-      Object.entries(SUBJECT_COLORS).map(([sub, col]) => `
+      BASE_SUBJECTS.map(sub => `
         <div class="legend-item">
-          <div class="legend-dot" style="background:${col}"></div>
+          <div class="legend-dot" style="background:${COLOR_MAP[sub]}"></div>
           <span>${sub}</span>
         </div>
       `).join('');
@@ -1574,8 +1884,30 @@
     document.getElementById('input-student-name').value = '';
 
     renderStudentList();
+    renderSiblingInfo(day, slot);
     document.getElementById('modal-backdrop').classList.add('active');
     document.getElementById('input-student-name').focus();
+  }
+
+  function renderSiblingInfo(day, slot) {
+    const siblings = getSiblings();
+    const el = document.getElementById('sibling-info');
+    const rows = siblings.map(s => {
+      const arr = (schedule[s] && schedule[s][day] && schedule[s][day][slot]) ? schedule[s][day][slot] : [];
+      const color = SUBJECT_COLORS[s];
+      return `
+        <div style="margin-bottom:4px">
+          <span style="display:inline-block;padding:1px 8px;border-radius:999px;background:${color};color:white;font-size:0.7rem;font-weight:700;margin-right:6px">${esc(s)}</span>
+          <span style="font-size:0.75rem;color:#4a5568">${arr.length === 0 ? '등록 없음' : arr.map(n => esc(n)).join(', ')}</span>
+        </div>`;
+    }).join('');
+
+    if (!rows) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div style="background:#f7fafc;border-radius:8px;padding:8px 10px;border:1px solid #e2e8f0">
+        <div style="font-size:0.72rem;font-weight:700;color:#718096;margin-bottom:6px">같은 과목 다른 반 현황</div>
+        ${rows}
+      </div>`;
   }
 
   function closeModal() {
@@ -1584,15 +1916,8 @@
     msgEl.style.display = 'none';
     clearTimeout(msgEl._timer);
     if (modalDay && modalSlot) {
-      const rows = document.querySelectorAll('#table-body tr');
-      ALL_SLOTS.forEach((slot, ri) => {
-        if (slot !== modalSlot) return;
-        const cells = rows[ri].querySelectorAll('td');
-        DAYS.forEach((day, di) => {
-          if (day === modalDay && isValidSlot(day, slot))
-            renderSlot(cells[di + 1], day, slot);
-        });
-      });
+      const td = document.querySelector(`#table-body td[data-day="${modalDay}"][data-slot="${modalSlot}"][data-cls="${currentSubject}"]`);
+      if (td) renderSlot(td, modalDay, modalSlot);
       updateStats();
     }
   }
@@ -1728,9 +2053,10 @@
     document.getElementById('login-subject').value = '';
     document.getElementById('login-pw').value = '';
     document.getElementById('login-error').textContent = '';
-    // Clear student search result on logout so it reflects any new data
     document.getElementById('schedule-result').innerHTML = '';
     document.getElementById('input-student-search').value = '';
+    document.getElementById('class-tabs').style.display = 'none';
+    document.getElementById('class-tabs').innerHTML = '';
     document.getElementById('app').classList.remove('visible');
     document.getElementById('login-screen').classList.remove('hidden');
   }
@@ -1880,6 +2206,12 @@
   }
 
   // ── Event Listeners ───────────────────────────────────────
+  document.getElementById('btn-subject-overview').addEventListener('click', openSubjectOverview);
+  document.getElementById('btn-close-overview').addEventListener('click', closeSubjectOverview);
+  document.getElementById('btn-print-overview').addEventListener('click', printSubjectOverview);
+  document.getElementById('subject-overview-backdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('subject-overview-backdrop')) closeSubjectOverview();
+  });
   document.getElementById('btn-login').addEventListener('click', login);
   document.getElementById('btn-logout').addEventListener('click', logout);
   document.getElementById('btn-print').addEventListener('click', openPrintPreview);

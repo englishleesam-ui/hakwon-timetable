@@ -1089,28 +1089,24 @@
         <select id="login-subject">
           <option value="">과목을 선택하세요</option>
           <optgroup label="국어">
-            <option value="국어1">국어 1반</option>
-            <option value="국어2">국어 2반</option>
-            <option value="국어3">국어 3반</option>
-            <option value="국어4">국어 4반</option>
+            <option value="국어(설쌤)">국어 (설쌤)</option>
+            <option value="국어(철원쌤)">국어 (철원쌤)</option>
+            <option value="국어(소진쌤)">국어 (소진쌤)</option>
           </optgroup>
           <optgroup label="영어">
-            <option value="영어1">영어 1반</option>
-            <option value="영어2">영어 2반</option>
-            <option value="영어3">영어 3반</option>
-            <option value="영어4">영어 4반</option>
+            <option value="영어(주민쌤)">영어 (주민쌤)</option>
+            <option value="영어(문쌤)">영어 (문쌤)</option>
+            <option value="영어(박쌤)">영어 (박쌤)</option>
+            <option value="영어(경미쌤)">영어 (경미쌤)</option>
           </optgroup>
           <optgroup label="수학">
-            <option value="수학1">수학 1반</option>
-            <option value="수학2">수학 2반</option>
-            <option value="수학3">수학 3반</option>
-            <option value="수학4">수학 4반</option>
+            <option value="수학(강쌤)">수학 (강쌤)</option>
+            <option value="수학(민규쌤)">수학 (민규쌤)</option>
+            <option value="수학(의현쌤)">수학 (의현쌤)</option>
           </optgroup>
           <optgroup label="과학">
-            <option value="과학1">과학 1반</option>
-            <option value="과학2">과학 2반</option>
-            <option value="과학3">과학 3반</option>
-            <option value="과학4">과학 4반</option>
+            <option value="과학(선엽쌤)">과학 (선엽쌤)</option>
+            <option value="과학(신쌤)">과학 (신쌤)</option>
           </optgroup>
           <optgroup label="역사">
             <option value="역사1">역사 1반</option>
@@ -1362,20 +1358,30 @@
   }
 
   // ── Constants ──────────────────────────────────────────────
-  const BASE_SUBJECTS = ['국어','영어','수학','과학','역사'];
-  const PW_MAP   = { '국어':'1111', '영어':'2222', '수학':'3333', '과학':'4444', '역사':'5555' };
-  const COLOR_MAP = { '국어':'#2563eb', '영어':'#16a34a', '수학':'#9333ea', '과학':'#dc2626', '역사':'#d97706' };
-  const LIGHT_MAP = { '국어':'#dbeafe', '영어':'#dcfce7', '수학':'#f3e8ff', '과학':'#fee2e2', '역사':'#fef3c7' };
+  const SUBJECT_DEFS = [
+    { subject: '국어', pw: '1111', color: '#2563eb', light: '#dbeafe',
+      accounts: ['국어(설쌤)', '국어(철원쌤)', '국어(소진쌤)'] },
+    { subject: '영어', pw: '2222', color: '#16a34a', light: '#dcfce7',
+      accounts: ['영어(주민쌤)', '영어(문쌤)', '영어(박쌤)', '영어(경미쌤)'] },
+    { subject: '수학', pw: '3333', color: '#9333ea', light: '#f3e8ff',
+      accounts: ['수학(강쌤)', '수학(민규쌤)', '수학(의현쌤)'] },
+    { subject: '과학', pw: '4444', color: '#dc2626', light: '#fee2e2',
+      accounts: ['과학(선엽쌤)', '과학(신쌤)'] },
+    { subject: '역사', pw: '5555', color: '#d97706', light: '#fef3c7',
+      accounts: ['역사1', '역사2', '역사3', '역사4'] },
+  ];
 
-  const ACCOUNTS = {};
+  const ACCOUNTS       = {};
+  const SUBJECT_OF     = {};
   const SUBJECT_COLORS = {};
   const SUBJECT_LIGHT  = {};
-  BASE_SUBJECTS.forEach(s => {
-    for (let i = 1; i <= 4; i++) {
-      ACCOUNTS[s+i]       = PW_MAP[s];
-      SUBJECT_COLORS[s+i] = COLOR_MAP[s];
-      SUBJECT_LIGHT[s+i]  = LIGHT_MAP[s];
-    }
+  SUBJECT_DEFS.forEach(def => {
+    def.accounts.forEach(acct => {
+      ACCOUNTS[acct]       = def.pw;
+      SUBJECT_OF[acct]     = def.subject;
+      SUBJECT_COLORS[acct] = def.color;
+      SUBJECT_LIGHT[acct]  = def.light;
+    });
   });
 
   const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
@@ -1717,8 +1723,8 @@
   // TIMETABLE BUILD
   // ══════════════════════════════════════════════════════════
   function getAllClasses() {
-    const base = currentSubject.slice(0, -1);
-    return Object.keys(ACCOUNTS).filter(s => s.startsWith(base)).sort();
+    const subj = SUBJECT_OF[currentSubject];
+    return Object.keys(ACCOUNTS).filter(s => SUBJECT_OF[s] === subj);
   }
 
   function getSiblings() {

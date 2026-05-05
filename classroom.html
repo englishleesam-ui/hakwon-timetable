@@ -306,6 +306,15 @@
     }
     .btn-confirm-desel:hover { background: #f7fafc; color: #4a5568; }
 
+    /* OVERVIEW BUTTON */
+    .btn-overview {
+      padding: 7px 16px; background: white; color: #2d3748;
+      border: 2px solid #e2e8f0; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 700; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-overview:hover { background: #f0fff4; border-color: #9ae6b4; color: #276749; }
+
     /* PRINT BUTTON */
     .btn-print-all {
       padding: 7px 16px; background: white; color: #4a5568;
@@ -314,6 +323,90 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .btn-print-all:hover { background: #ebf8ff; border-color: #90cdf4; color: #2b6cb0; }
+
+    /* OVERVIEW MODAL */
+    #overview-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(15,23,42,0.72); z-index: 900;
+      align-items: flex-start; justify-content: center;
+      padding: 24px 16px 40px; overflow-y: auto;
+    }
+    #overview-backdrop.open { display: flex; }
+    #overview-modal {
+      background: #f8fafc; border-radius: 20px; width: 100%; max-width: 1200px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.38); overflow: hidden;
+    }
+    .ov-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%);
+      color: white; flex-wrap: wrap; gap: 10px;
+    }
+    .ov-toolbar-title { font-size: 1.1rem; font-weight: 900; letter-spacing: -0.3px; }
+    .ov-toolbar-sub   { font-size: 0.76rem; opacity: 0.75; margin-top: 3px; }
+    #overview-content { padding: 22px 26px; overflow-x: auto; }
+    .ov-table {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+      min-width: 760px; border-radius: 12px; overflow: hidden;
+      border: 1.5px solid #cbd5e0;
+    }
+    .ov-table th {
+      background: #2d3748; color: #e2e8f0;
+      padding: 13px 10px; font-size: 0.88rem; font-weight: 800;
+      text-align: center; border-bottom: 2px solid #4a5568;
+      border-right: 1px solid #4a5568; letter-spacing: 0.2px;
+    }
+    .ov-table th:last-child { border-right: none; }
+    .ov-table th.ov-th-room-header {
+      background: #1a202c; width: 100px; font-size: 0.8rem; color: #a0aec0;
+    }
+    .ov-table th.ov-th-day { min-width: 130px; }
+    .ov-table th.ov-th-day.weekend { background: #7a3a10; color: #fde8d8; }
+    /* 강의실 레이블 셀 */
+    .ov-table td.ov-td-room-label {
+      background: #f0f4f8; font-weight: 900; font-size: 0.95rem;
+      color: #1e3a5f; text-align: center; white-space: nowrap;
+      padding: 0 14px; border-right: 2.5px solid #cbd5e0;
+      border-bottom: 1px solid #e2e8f0; vertical-align: middle;
+    }
+    .ov-table tbody tr:last-child td.ov-td-room-label { border-bottom: none; }
+    /* 데이터 셀 */
+    .ov-table td.ov-td-cell {
+      border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle; padding: 10px 10px;
+      height: 76px; text-align: center; background: #fff;
+    }
+    .ov-table td.ov-td-cell:last-child { border-right: none; }
+    .ov-table tbody tr:last-child td.ov-td-cell { border-bottom: none; }
+    .ov-table td.ov-td-cell.weekend-col { background: #fdfaf6; }
+    /* 단일 선생님 → 큰 블록 */
+    .ov-teacher-block {
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 10px; padding: 12px 10px;
+      font-size: 1.05rem; font-weight: 900; color: white;
+      text-align: center; width: 100%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      letter-spacing: 0.3px;
+    }
+    /* 여러 선생님 → 작은 칩 목록 */
+    .ov-slot-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin-bottom: 5px;
+    }
+    .ov-slot-row:last-child { margin-bottom: 0; }
+    .ov-slot-time {
+      font-size: 0.68rem; color: #94a3b8; white-space: nowrap;
+      min-width: 38px; font-weight: 600;
+    }
+    .ov-slot-chip {
+      font-size: 0.82rem; font-weight: 800; color: white;
+      padding: 3px 11px; border-radius: 999px; white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    /* 빈 강의실 */
+    .ov-cell-empty {
+      text-align: center; color: #d1d5db; font-size: 1.3rem; font-weight: 300;
+    }
 
     /* PRINT MODAL */
     #print-backdrop {
@@ -463,6 +556,20 @@
     <button class="btn-login" onclick="doLogin()">입장하기</button>
     <hr class="divider" />
     <button class="btn-guest" onclick="doGuest()">👁 게스트로 보기 (읽기 전용)</button>
+  </div>
+</div>
+
+<!-- ══ 한눈에 보기 모달 ══ -->
+<div id="overview-backdrop">
+  <div id="overview-modal">
+    <div class="ov-toolbar">
+      <div>
+        <div class="ov-toolbar-title">📋 한눈에 보기</div>
+        <div class="ov-toolbar-sub">전체 요일 × 강의실 예약 현황 한눈에 보기</div>
+      </div>
+      <button class="btn-close-modal" onclick="closeOverviewModal()">✕ 닫기</button>
+    </div>
+    <div id="overview-content"></div>
   </div>
 </div>
 
@@ -798,6 +905,7 @@
       sub.textContent = '강의실 예약 현황 — 읽기 전용';
     }
     right.innerHTML = loginHtml +
+      `<button class="btn-overview"  onclick="openOverviewModal()">📋 한눈에 보기</button>` +
       `<button class="btn-print-all" onclick="openPrintModal()">🖨️ 전체 출력</button>`;
   }
 
@@ -1046,6 +1154,98 @@
     document.getElementById('print-backdrop').classList.remove('open');
   };
 
+  // ── 한눈에 보기 ─────────────────────────────────────────────
+  window.openOverviewModal = function() {
+    const content = document.getElementById('overview-content');
+    const tbl = document.createElement('table');
+    tbl.className = 'ov-table';
+
+    // 헤더행: [강의실] + 월~일 (요일 = 가로)
+    const thead = tbl.createTHead();
+    const hRow  = thead.insertRow();
+    const thLabel = document.createElement('th');
+    thLabel.className   = 'ov-th-room-header';
+    thLabel.textContent = '강의실';
+    hRow.appendChild(thLabel);
+    DAYS.forEach(day => {
+      const isWE = !WEEKDAYS.has(day);
+      const th   = document.createElement('th');
+      th.className   = 'ov-th-day' + (isWE ? ' weekend' : '');
+      th.textContent = DAY_LABEL[day];
+      hRow.appendChild(th);
+    });
+
+    // 데이터행: 강의실 = 세로
+    const tbody = tbl.createTBody();
+    ROOMS.forEach((roomName, roomIdx) => {
+      const tr = tbody.insertRow();
+
+      // 강의실 레이블 셀
+      const tdLabel = tr.insertCell();
+      tdLabel.className   = 'ov-td-room-label';
+      tdLabel.textContent = roomName;
+
+      // 요일별 셀
+      DAYS.forEach(day => {
+        const isWE  = !WEEKDAYS.has(day);
+        const slots = slotsFor(day);
+        const td    = tr.insertCell();
+        td.className = 'ov-td-cell' + (isWE ? ' weekend-col' : '');
+
+        // 선생님별로 그룹화
+        const teacherMap = {};
+        const order = [];
+        slots.forEach(slot => {
+          const teacher = getBooking(roomIdx, day, slot);
+          if (teacher) {
+            if (!teacherMap[teacher]) { teacherMap[teacher] = []; order.push(teacher); }
+            teacherMap[teacher].push(slot);
+          }
+        });
+
+        if (order.length === 0) {
+          const empty = document.createElement('div');
+          empty.className   = 'ov-cell-empty';
+          empty.textContent = '—';
+          td.appendChild(empty);
+        } else if (order.length === 1) {
+          const teacher = order[0];
+          const c = COLORS[teacher] ?? { main: '#718096' };
+          const block = document.createElement('div');
+          block.className        = 'ov-teacher-block';
+          block.style.background = c.main;
+          block.textContent      = teacher;
+          td.appendChild(block);
+        } else {
+          order.forEach(teacher => {
+            const c         = COLORS[teacher] ?? { main: '#718096' };
+            const firstSlot = teacherMap[teacher][0].split(' ~ ')[0];
+            const row       = document.createElement('div');
+            row.className   = 'ov-slot-row';
+            const timeSpan  = document.createElement('span');
+            timeSpan.className   = 'ov-slot-time';
+            timeSpan.textContent = firstSlot;
+            const chip = document.createElement('span');
+            chip.className        = 'ov-slot-chip';
+            chip.style.background = c.main;
+            chip.textContent      = teacher;
+            row.appendChild(timeSpan);
+            row.appendChild(chip);
+            td.appendChild(row);
+          });
+        }
+      });
+    });
+
+    content.innerHTML = '';
+    content.appendChild(tbl);
+    document.getElementById('overview-backdrop').classList.add('open');
+  };
+
+  window.closeOverviewModal = function() {
+    document.getElementById('overview-backdrop').classList.remove('open');
+  };
+
   window.doPrint = function() {
     const paper   = document.querySelector('input[name="paper-size"]:checked')?.value ?? 'A4';
     const isB4    = paper === 'B4';
@@ -1179,6 +1379,9 @@
   // 배경 클릭 시 모달 닫기
   document.getElementById('print-backdrop').addEventListener('click', (e) => {
     if (e.target === document.getElementById('print-backdrop')) closePrintModal();
+  });
+  document.getElementById('overview-backdrop').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('overview-backdrop')) closeOverviewModal();
   });
 
   function renderAll() {
